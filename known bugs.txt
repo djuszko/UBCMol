@@ -1,0 +1,8 @@
+BUGS IN CURRENT IMPLEMENTATION
+ - color picking acts strangely
+    * difficult to describe accurately; not really sure what's going on yet
+ - script insertion cursor jumps around seemingly at random
+ - load/save (and save JPEG) sometimes target a weird default directory, or doesn't remember your last chosen directory
+ - picking text area doesnt auto scroll to bottom
+ - SELECT column in picking isn't working properly
+ - PICKING/IDENTITY, DISTANCE, ANGLE, TORSION don't display in window

@@ -1,0 +1,38 @@
+Version 1.0
+  - Original code recieved from Dr. Stephen McNeil
+  - Changed HTMLBuilder title and added version number
+  - No further changes made
+
+Version 1.1
+  - Cleaned up Atoms.java and Residues.java
+     * Removed unnecessary comments
+     * Cleaned up formatting
+     * Added basic commenting
+
+  - Added all functionality from "Chains" tab to "Residues" tab
+  - Removed "Chains" tab
+
+  ADDED FUNCTIONALITY:
+  - Under ATOMS tab
+     * Fixed and added headers for all sub-panels
+     * Added backbone, carbohydrate, spine buttons under OTHER SETS
+
+  - Under RESIDUES tab
+     * Renamed "Select" column to "Sets"
+     * Added a colon (":") to the "Sets" and "Amino Acids" column labels
+     * Changed "Amino Acids" label to only appear if there are amino acids present
+     * Added cyclic, acyclic, aliphatic, surface, and buried buttons
+     * Added "Chains" column
+     * Added new column "Nucleotides"
+     * Added "A", "C", "G", "I", "T", "U", "DA", "DC", "DG", "DI", "DT", and "DU" selection buttons to "Nucleotides"
+     * Added "Select" Column
+     * Added "DNA", "nucleic", "purine", "pyrimidine", and "RNA" selection buttons to "Select"
+
+  - Under RENDER tab
+    - Added meshribbon, trace, and rockets buttons
+
+Version 1.2
+  - Updated to latest version of Jmol
+     * Certain functions that did not work before (select spine and carbohydrates, among others) now work
+  - The right-click menu from Jmol is now functional in UBCMol -- it can be accessed by right clicking the display window
+  - Rebuilt the project to get rid of unnecessary files -- project now significantly smaller

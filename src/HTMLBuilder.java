@@ -63,7 +63,7 @@ private ScriptPanel scriptPanel;
 
 private Border blackline;
 private JPanel jPanel;
-private String version = "Version 1.2";
+private String version = "Version 1.4";
 
 public static void main(String[] argv) {
   

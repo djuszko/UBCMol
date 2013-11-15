@@ -29,10 +29,27 @@ Version 1.1
      * Added "DNA", "nucleic", "purine", "pyrimidine", and "RNA" selection buttons to "Select"
 
   - Under RENDER tab
-    - Added meshribbon, trace, and rockets buttons
+     * Added meshribbon, trace, and rockets buttons
 
 Version 1.2
   - Updated to latest version of Jmol
      * Certain functions that did not work before (select spine and carbohydrates, among others) now work
   - The right-click menu from Jmol is now functional in UBCMol -- it can be accessed by right clicking the display window
   - Rebuilt the project to get rid of unnecessary files -- project now significantly smaller
+
+Version 1.3
+  - Cleaned up JmolColor.java
+     * Cleaned up formatting
+     * Added basic commenting
+  - Cleaned up RasmolColors.java
+     * Cleaned up formatting
+     * Added basic commenting
+
+  - Updated COLORS tab
+     * Added "Labels" checkbox which allows user to change color of labels
+
+Version 1.4
+  - Under PICKING tab
+     * Added Select by Atom #
+  - Under RENDER tab
+     * Added anti-alias button, zoom slider, zoom text field

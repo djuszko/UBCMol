@@ -14,7 +14,11 @@ import javax.swing.JPanel;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeEvent;
 
-public class Render implements ActionListener, PropertyChangeListener {
+import javax.swing.JSlider;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+
+public class Render implements ActionListener, PropertyChangeListener, ChangeListener {
 
 	private HTMLBuilder builder;
 	private int id;
@@ -22,38 +26,36 @@ public class Render implements ActionListener, PropertyChangeListener {
 	private JPanel mainRender;
 
 	private JButton wireframeButton, spacefillButton, backboneButton,
-			ribbonsButton, strandsButton, cartoonsButton, hbondsButton,
-			ssbondsButton, meshRibbonButton, traceButton, rocketsButton;
+	ribbonsButton, strandsButton, cartoonsButton, hbondsButton,
+	ssbondsButton, meshRibbonButton, traceButton, rocketsButton, antialiasButton;
 
 	private JFormattedTextField wireframeField, spacefillField, backboneField,
-			ribbonsField, strandsField, cartoonsField, hbondsField, traceField, rocketsField,
-			ssbondsField, meshRibbonField;
+	ribbonsField, strandsField, cartoonsField, hbondsField, traceField, rocketsField,
+	ssbondsField, meshRibbonField, zoomField;
 	private NumberFormat numberFormat = NumberFormat.getNumberInstance();
 
 	private boolean backboneOn, wireframeOn, spacefillOn, ribbonsOn, strandsOn,
-			cartoonsOn, hbondsOn, ssbondsOn, meshRibbonOn, traceOn, rocketsOn;
+	cartoonsOn, hbondsOn, ssbondsOn, meshRibbonOn, traceOn, rocketsOn, antialiasOn;
 
 	public Render(HTMLBuilder builder, MainPanel mainPanel, int id) {
 
 		this.builder = builder;
 		this.id = id;
 		this.mainPanel = mainPanel;
+
 		JPanel renderPanel = new JPanel();
-		// renderPanel.setLayout(new BorderLayout());
 		renderPanel.setLayout(new BoxLayout(renderPanel, BoxLayout.Y_AXIS));
 
-		/**
+		/*
 		 * Wireframe button. 
 		 * Refers to the bonds drawn between the atoms. A boolean value of ON draws the selected bonds as lines.
 		 */
 		JPanel renderSubPanel = new JPanel();
-		renderSubPanel
-				.setLayout(new BoxLayout(renderSubPanel, BoxLayout.X_AXIS));
+		renderSubPanel.setLayout(new BoxLayout(renderSubPanel, BoxLayout.X_AXIS));
 
 		wireframeButton = new JButton("Wireframe On");
 		wireframeButton.addActionListener(this);
 		wireframeButton.setActionCommand("wireframeButton");
-		// wireframeButton.setMaximumSize(new Dimension(150, 30));
 		wireframeOn = false;
 		renderSubPanel.add(wireframeButton);
 
@@ -64,21 +66,18 @@ public class Render implements ActionListener, PropertyChangeListener {
 
 		wireframeField.setMaximumSize(new Dimension(100, 20));
 		renderSubPanel.add(wireframeField);
-		// renderSubPanel.setMaximumSize(new Dimension(250,50));
 		renderPanel.add(renderSubPanel);
 
 		/*
 		 * Spacefill button.
 		 * Renders selected atoms as shaded spheres.
 		 */
-		renderSubPanel = new JPanel();
-		renderSubPanel
-				.setLayout(new BoxLayout(renderSubPanel, BoxLayout.X_AXIS));
-
+		renderSubPanel = new JPanel();	 	
+		renderSubPanel.setLayout(new BoxLayout(renderSubPanel, BoxLayout.X_AXIS));
+		
 		spacefillButton = new JButton("Spacefill On");
 		spacefillButton.addActionListener(this);
 		spacefillButton.setActionCommand("spacefillButton");
-		// spacefillButton.setMaximumSize(new Dimension(150, 30));
 		spacefillOn = false;
 		renderSubPanel.add(spacefillButton);
 
@@ -89,21 +88,18 @@ public class Render implements ActionListener, PropertyChangeListener {
 		spacefillField.setMaximumSize(new Dimension(100, 20));
 
 		renderSubPanel.add(spacefillField);
-		// renderSubPanel.setMaximumSize(new Dimension(250,50));
 		renderPanel.add(renderSubPanel);
 
-		
-		/*
-		 * 
-		 */
-		renderSubPanel = new JPanel();
-		renderSubPanel
-				.setLayout(new BoxLayout(renderSubPanel, BoxLayout.X_AXIS));
 
+		/*
+		 * backbone button
+		 */
+		renderSubPanel = new JPanel();	 	
+		renderSubPanel.setLayout(new BoxLayout(renderSubPanel, BoxLayout.X_AXIS));
+		
 		backboneButton = new JButton("Backbone On");
 		backboneButton.addActionListener(this);
 		backboneButton.setActionCommand("backboneButton");
-		// backboneButton.setMaximumSize(new Dimension(150, 30));
 		backboneOn = false;
 		renderSubPanel.add(backboneButton);
 
@@ -114,17 +110,18 @@ public class Render implements ActionListener, PropertyChangeListener {
 
 		backboneField.setMaximumSize(new Dimension(100, 20));
 		renderSubPanel.add(backboneField);
-		// renderSubPanel.setMaximumSize(new Dimension(250,50));
 		renderPanel.add(renderSubPanel);
 
-		renderSubPanel = new JPanel();
-		renderSubPanel
-				.setLayout(new BoxLayout(renderSubPanel, BoxLayout.X_AXIS));
-
+		/*
+		 * ribbons button
+		 */
+		renderSubPanel = new JPanel();	 	
+		renderSubPanel.setLayout(new BoxLayout(renderSubPanel, BoxLayout.X_AXIS));
+		
+		
 		ribbonsButton = new JButton("Ribbons On");
 		ribbonsButton.addActionListener(this);
 		ribbonsButton.setActionCommand("ribbonsButton");
-		// ribbonsButton.setMaximumSize(new Dimension(150, 30));
 		ribbonsOn = false;
 		renderSubPanel.add(ribbonsButton);
 
@@ -135,17 +132,17 @@ public class Render implements ActionListener, PropertyChangeListener {
 		ribbonsField.setActionCommand("Ribbons");
 		ribbonsField.setMaximumSize(new Dimension(100, 20));
 		renderSubPanel.add(ribbonsField);
-		// renderSubPanel.setMaximumSize(new Dimension(250,50));
 		renderPanel.add(renderSubPanel);
 
-		renderSubPanel = new JPanel();
-		renderSubPanel
-				.setLayout(new BoxLayout(renderSubPanel, BoxLayout.X_AXIS));
+		/*
+		 * strands button
+		 */
+		renderSubPanel = new JPanel();	 	
+		renderSubPanel.setLayout(new BoxLayout(renderSubPanel, BoxLayout.X_AXIS));
 
 		strandsButton = new JButton("Strands On");
 		strandsButton.addActionListener(this);
 		strandsButton.setActionCommand("strandsButton");
-		// strandsButton.setMaximumSize(new Dimension(150, 30));
 		strandsOn = false;
 		renderSubPanel.add(strandsButton);
 
@@ -156,17 +153,17 @@ public class Render implements ActionListener, PropertyChangeListener {
 
 		strandsField.setMaximumSize(new Dimension(100, 20));
 		renderSubPanel.add(strandsField);
-		// renderSubPanel.setMaximumSize(new Dimension(250,50));
 		renderPanel.add(renderSubPanel);
 
-		renderSubPanel = new JPanel();
-		renderSubPanel
-				.setLayout(new BoxLayout(renderSubPanel, BoxLayout.X_AXIS));
+		/*
+		 * cartoons button
+		 */
+		renderSubPanel = new JPanel();	 	
+		renderSubPanel.setLayout(new BoxLayout(renderSubPanel, BoxLayout.X_AXIS));
 
 		cartoonsButton = new JButton("Cartoons On");
 		cartoonsButton.addActionListener(this);
 		cartoonsButton.setActionCommand("cartoonsButton");
-		// cartoonsButton.setMaximumSize(new Dimension(150, 30));
 		cartoonsOn = false;
 		renderSubPanel.add(cartoonsButton);
 
@@ -177,17 +174,17 @@ public class Render implements ActionListener, PropertyChangeListener {
 
 		cartoonsField.setMaximumSize(new Dimension(100, 20));
 		renderSubPanel.add(cartoonsField);
-		// renderSubPanel.setMaximumSize(new Dimension(250,50));
 		renderPanel.add(renderSubPanel);
 
-		renderSubPanel = new JPanel();
-		renderSubPanel
-				.setLayout(new BoxLayout(renderSubPanel, BoxLayout.X_AXIS));
+		/*
+		 * hbonds button
+		 */
+		renderSubPanel = new JPanel();	 	
+		renderSubPanel.setLayout(new BoxLayout(renderSubPanel, BoxLayout.X_AXIS));
 
 		hbondsButton = new JButton("HBonds On");
 		hbondsButton.addActionListener(this);
 		hbondsButton.setActionCommand("hbondsButton");
-		// hbondsButton.setMaximumSize(new Dimension(150, 30));
 		hbondsOn = false;
 		renderSubPanel.add(hbondsButton);
 
@@ -198,16 +195,17 @@ public class Render implements ActionListener, PropertyChangeListener {
 
 		hbondsField.setMaximumSize(new Dimension(100, 20));
 		renderSubPanel.add(hbondsField);
-		// renderSubPanel.setMaximumSize(new Dimension(250,50));
 		renderPanel.add(renderSubPanel);
 
-		renderSubPanel = new JPanel();
-		renderSubPanel
-				.setLayout(new BoxLayout(renderSubPanel, BoxLayout.X_AXIS));
+		/*
+		 * ssbonds button
+		 */
+		renderSubPanel = new JPanel();	 	
+		renderSubPanel.setLayout(new BoxLayout(renderSubPanel, BoxLayout.X_AXIS));
+		
 		ssbondsButton = new JButton("SSBonds On");
 		ssbondsButton.addActionListener(this);
 		ssbondsButton.setActionCommand("ssbondsButton");
-		// ssbondsButton.setMaximumSize(new Dimension(150, 30));
 		ssbondsOn = false;
 		renderSubPanel.add(ssbondsButton);
 
@@ -218,21 +216,19 @@ public class Render implements ActionListener, PropertyChangeListener {
 
 		ssbondsField.setMaximumSize(new Dimension(100, 20));
 		renderSubPanel.add(ssbondsField);
-		// renderSubPanel.setMaximumSize(new Dimension(250,50));
 		renderPanel.add(renderSubPanel);
 
 		mainRender = new JPanel();
 		mainRender.setLayout(new BorderLayout());
 		mainRender.add(renderPanel, BorderLayout.WEST);
 
-		
+
 		/*
 		 *  Meshribbon Button
 		 */
-		renderSubPanel = new JPanel();
-		renderSubPanel
-				.setLayout(new BoxLayout(renderSubPanel, BoxLayout.X_AXIS));
-
+		renderSubPanel = new JPanel();	 	
+		renderSubPanel.setLayout(new BoxLayout(renderSubPanel, BoxLayout.X_AXIS));
+		
 		meshRibbonButton = new JButton("Meshribbon On");
 		meshRibbonButton.addActionListener(this);
 		meshRibbonButton.setActionCommand("meshRibbonButton");
@@ -247,13 +243,12 @@ public class Render implements ActionListener, PropertyChangeListener {
 
 		renderSubPanel.add(meshRibbonField);
 		renderPanel.add(renderSubPanel);
-		
+
 		/*
 		 *  Trace Button
 		 */
-		renderSubPanel = new JPanel();
-		renderSubPanel
-				.setLayout(new BoxLayout(renderSubPanel, BoxLayout.X_AXIS));
+		renderSubPanel = new JPanel();	 	
+		renderSubPanel.setLayout(new BoxLayout(renderSubPanel, BoxLayout.X_AXIS));
 
 		traceButton = new JButton("Trace On");
 		traceButton.addActionListener(this);
@@ -269,12 +264,12 @@ public class Render implements ActionListener, PropertyChangeListener {
 
 		renderSubPanel.add(traceField);
 		renderPanel.add(renderSubPanel);
+		
 		/*
 		 *  Rockets Button
 		 */
-		renderSubPanel = new JPanel();
-		renderSubPanel
-				.setLayout(new BoxLayout(renderSubPanel, BoxLayout.X_AXIS));
+		renderSubPanel = new JPanel();	 	
+		renderSubPanel.setLayout(new BoxLayout(renderSubPanel, BoxLayout.X_AXIS));
 
 		rocketsButton = new JButton("Rockets On");
 		rocketsButton.addActionListener(this);
@@ -291,6 +286,47 @@ public class Render implements ActionListener, PropertyChangeListener {
 		renderSubPanel.add(rocketsField);
 		renderPanel.add(renderSubPanel);
 
+		/*
+		 * Anti-Alias Button
+		 */
+		
+		renderSubPanel = new JPanel();	 	
+		renderSubPanel.setLayout(new BoxLayout(renderSubPanel, BoxLayout.X_AXIS));
+
+		antialiasButton = new JButton("Anti-Aliasing On");
+		antialiasButton.addActionListener(this);
+		antialiasButton.setActionCommand("antialiasButton");
+		antialiasOn = false;
+		renderSubPanel.add(antialiasButton);
+		
+		renderPanel.add(renderSubPanel);
+		
+		/*
+		 * ZOOM!!!!!
+		 */
+		renderSubPanel = new JPanel();	 	
+		renderSubPanel.setLayout(new BoxLayout(renderSubPanel, BoxLayout.X_AXIS));
+		
+		// slider
+		JSlider zoomSlider = new JSlider(JSlider.HORIZONTAL, 50, 200, 100);
+		zoomSlider.addChangeListener(this);
+		
+		zoomSlider.setMajorTickSpacing(50);
+		zoomSlider.setMinorTickSpacing(5);
+		zoomSlider.setPaintTicks(true);
+		zoomSlider.setPaintLabels(true);
+		
+		// field
+		zoomField = new JFormattedTextField(numberFormat);
+		zoomField.setValue(100);
+		zoomField.setColumns(4);
+		zoomField.addPropertyChangeListener("value", this);
+		zoomField.setMaximumSize(new Dimension(100, 20));
+		
+		renderSubPanel.add(zoomField);
+		renderSubPanel.add(zoomSlider);
+		renderPanel.add(renderSubPanel);
+		
 	}
 
 	public void actionPerformed(ActionEvent e) {
@@ -300,23 +336,23 @@ public class Render implements ActionListener, PropertyChangeListener {
 			if (!backboneOn) {
 				// mainPanel.getScriptPanel().getScriptArea().append("backbone on"+";\n");
 				mainPanel
-						.getScriptPanel()
-						.getScriptArea()
-						.insert("backbone on" + ";\n",
-								mainPanel.getScriptPanel().getScriptArea()
-										.getCaretPosition());
+				.getScriptPanel()
+				.getScriptArea()
+				.insert("backbone on" + ";\n",
+						mainPanel.getScriptPanel().getScriptArea()
+						.getCaretPosition());
 				mainPanel.getScriptPanel()
-						.runScript("backbone on" + ";", false);
+				.runScript("backbone on" + ";", false);
 				backboneOn = true;
 				backboneButton.setText("Backbone Off");
 			} else {
 				// mainPanel.getScriptPanel().getScriptArea().append("backbone off"+";\n");
 				mainPanel
-						.getScriptPanel()
-						.getScriptArea()
-						.insert("backbone off" + ";\n",
-								mainPanel.getScriptPanel().getScriptArea()
-										.getCaretPosition());
+				.getScriptPanel()
+				.getScriptArea()
+				.insert("backbone off" + ";\n",
+						mainPanel.getScriptPanel().getScriptArea()
+						.getCaretPosition());
 				mainPanel.getScriptPanel().runScript("backbone off" + ";",
 						false);
 				backboneOn = false;
@@ -327,11 +363,11 @@ public class Render implements ActionListener, PropertyChangeListener {
 			if (!wireframeOn) {
 				// mainPanel.getScriptPanel().getScriptArea().append("wireframe on"+";\n");
 				mainPanel
-						.getScriptPanel()
-						.getScriptArea()
-						.insert("wireframe on" + ";\n",
-								mainPanel.getScriptPanel().getScriptArea()
-										.getCaretPosition());
+				.getScriptPanel()
+				.getScriptArea()
+				.insert("wireframe on" + ";\n",
+						mainPanel.getScriptPanel().getScriptArea()
+						.getCaretPosition());
 				mainPanel.getScriptPanel().runScript("wireframe on" + ";",
 						false);
 				wireframeOn = true;
@@ -339,11 +375,11 @@ public class Render implements ActionListener, PropertyChangeListener {
 			} else {
 				// mainPanel.getScriptPanel().getScriptArea().append("wireframe off"+";\n");
 				mainPanel
-						.getScriptPanel()
-						.getScriptArea()
-						.insert("wireframe off" + ";\n",
-								mainPanel.getScriptPanel().getScriptArea()
-										.getCaretPosition());
+				.getScriptPanel()
+				.getScriptArea()
+				.insert("wireframe off" + ";\n",
+						mainPanel.getScriptPanel().getScriptArea()
+						.getCaretPosition());
 				mainPanel.getScriptPanel().runScript("wireframe off" + ";",
 						false);
 				wireframeOn = false;
@@ -354,11 +390,11 @@ public class Render implements ActionListener, PropertyChangeListener {
 			if (!spacefillOn) {
 				// mainPanel.getScriptPanel().getScriptArea().append("spacefill on"+";\n");
 				mainPanel
-						.getScriptPanel()
-						.getScriptArea()
-						.insert("spacefill on" + ";\n",
-								mainPanel.getScriptPanel().getScriptArea()
-										.getCaretPosition());
+				.getScriptPanel()
+				.getScriptArea()
+				.insert("spacefill on" + ";\n",
+						mainPanel.getScriptPanel().getScriptArea()
+						.getCaretPosition());
 				mainPanel.getScriptPanel().runScript("spacefill on" + ";",
 						false);
 				spacefillOn = true;
@@ -366,11 +402,11 @@ public class Render implements ActionListener, PropertyChangeListener {
 			} else {
 				// mainPanel.getScriptPanel().getScriptArea().append("spacefill off"+";\n");
 				mainPanel
-						.getScriptPanel()
-						.getScriptArea()
-						.insert("spacefill off" + ";\n",
-								mainPanel.getScriptPanel().getScriptArea()
-										.getCaretPosition());
+				.getScriptPanel()
+				.getScriptArea()
+				.insert("spacefill off" + ";\n",
+						mainPanel.getScriptPanel().getScriptArea()
+						.getCaretPosition());
 				mainPanel.getScriptPanel().runScript("spacefill off" + ";",
 						false);
 				spacefillOn = false;
@@ -381,11 +417,11 @@ public class Render implements ActionListener, PropertyChangeListener {
 			if (!ribbonsOn) {
 				// mainPanel.getScriptPanel().getScriptArea().append("ribbons on"+";\n");
 				mainPanel
-						.getScriptPanel()
-						.getScriptArea()
-						.insert("ribbons on" + ";\n",
-								mainPanel.getScriptPanel().getScriptArea()
-										.getCaretPosition());
+				.getScriptPanel()
+				.getScriptArea()
+				.insert("ribbons on" + ";\n",
+						mainPanel.getScriptPanel().getScriptArea()
+						.getCaretPosition());
 				mainPanel.getScriptPanel().runScript("ribbons on" + ";", false);
 				ribbonsOn = true;
 				ribbonsButton.setText("Ribbons Off");
@@ -393,13 +429,13 @@ public class Render implements ActionListener, PropertyChangeListener {
 			} else {
 				// mainPanel.getScriptPanel().getScriptArea().append("ribbons off"+";\n");
 				mainPanel
-						.getScriptPanel()
-						.getScriptArea()
-						.insert("ribbons off" + ";\n",
-								mainPanel.getScriptPanel().getScriptArea()
-										.getCaretPosition());
+				.getScriptPanel()
+				.getScriptArea()
+				.insert("ribbons off" + ";\n",
+						mainPanel.getScriptPanel().getScriptArea()
+						.getCaretPosition());
 				mainPanel.getScriptPanel()
-						.runScript("ribbons off" + ";", false);
+				.runScript("ribbons off" + ";", false);
 				ribbonsOn = false;
 				ribbonsButton.setText("Ribbons On");
 				mainPanel.getJmolColor().setRibbonsEnabled(false);
@@ -409,11 +445,11 @@ public class Render implements ActionListener, PropertyChangeListener {
 			if (!strandsOn) {
 				// mainPanel.getScriptPanel().getScriptArea().append("strands on"+";\n");
 				mainPanel
-						.getScriptPanel()
-						.getScriptArea()
-						.insert("strands on" + ";\n",
-								mainPanel.getScriptPanel().getScriptArea()
-										.getCaretPosition());
+				.getScriptPanel()
+				.getScriptArea()
+				.insert("strands on" + ";\n",
+						mainPanel.getScriptPanel().getScriptArea()
+						.getCaretPosition());
 				mainPanel.getScriptPanel().runScript("strands on" + ";", false);
 				strandsOn = true;
 				strandsButton.setText("Strands Off");
@@ -421,13 +457,13 @@ public class Render implements ActionListener, PropertyChangeListener {
 			} else {
 				// mainPanel.getScriptPanel().getScriptArea().append("strands off"+";\n");
 				mainPanel
-						.getScriptPanel()
-						.getScriptArea()
-						.insert("strands off" + ";\n",
-								mainPanel.getScriptPanel().getScriptArea()
-										.getCaretPosition());
+				.getScriptPanel()
+				.getScriptArea()
+				.insert("strands off" + ";\n",
+						mainPanel.getScriptPanel().getScriptArea()
+						.getCaretPosition());
 				mainPanel.getScriptPanel()
-						.runScript("strands off" + ";", false);
+				.runScript("strands off" + ";", false);
 				strandsOn = false;
 				strandsButton.setText("Strands On");
 				mainPanel.getJmolColor().setStrandsEnabled(false);
@@ -437,24 +473,24 @@ public class Render implements ActionListener, PropertyChangeListener {
 			if (!cartoonsOn) {
 				// mainPanel.getScriptPanel().getScriptArea().append("cartoons on"+";\n");
 				mainPanel
-						.getScriptPanel()
-						.getScriptArea()
-						.insert("cartoons on" + ";\n",
-								mainPanel.getScriptPanel().getScriptArea()
-										.getCaretPosition());
+				.getScriptPanel()
+				.getScriptArea()
+				.insert("cartoons on" + ";\n",
+						mainPanel.getScriptPanel().getScriptArea()
+						.getCaretPosition());
 				mainPanel.getScriptPanel()
-						.runScript("cartoons on" + ";", false);
+				.runScript("cartoons on" + ";", false);
 				cartoonsOn = true;
 				cartoonsButton.setText("Cartoons Off");
 				mainPanel.getJmolColor().setCartoonsEnabled(true);
 			} else {
 				// mainPanel.getScriptPanel().getScriptArea().append("cartoons off"+";\n");
 				mainPanel
-						.getScriptPanel()
-						.getScriptArea()
-						.insert("cartoons off" + ";\n",
-								mainPanel.getScriptPanel().getScriptArea()
-										.getCaretPosition());
+				.getScriptPanel()
+				.getScriptArea()
+				.insert("cartoons off" + ";\n",
+						mainPanel.getScriptPanel().getScriptArea()
+						.getCaretPosition());
 				mainPanel.getScriptPanel().runScript("cartoons off" + ";",
 						false);
 				cartoonsOn = false;
@@ -467,12 +503,12 @@ public class Render implements ActionListener, PropertyChangeListener {
 
 				// mainPanel.getScriptPanel().getScriptArea().append("cartoons on"+";\n");
 				mainPanel
-						.getScriptPanel()
-						.getScriptArea()
-						.insert("select all" + ";\n" + "hbonds calculate"
-								+ ";\n" + "hbonds on" + ";\n",
-								mainPanel.getScriptPanel().getScriptArea()
-										.getCaretPosition());
+				.getScriptPanel()
+				.getScriptArea()
+				.insert("select all" + ";\n" + "hbonds calculate"
+						+ ";\n" + "hbonds on" + ";\n",
+						mainPanel.getScriptPanel().getScriptArea()
+						.getCaretPosition());
 
 				// mainPanel.getScriptPanel().getScriptArea().setCaretPosition(29);
 				mainPanel.getScriptPanel().runScript(
@@ -487,11 +523,11 @@ public class Render implements ActionListener, PropertyChangeListener {
 			} else {
 				// mainPanel.getScriptPanel().getScriptArea().append("cartoons off"+";\n");
 				mainPanel
-						.getScriptPanel()
-						.getScriptArea()
-						.insert("hbonds off" + ";\n",
-								mainPanel.getScriptPanel().getScriptArea()
-										.getCaretPosition());
+				.getScriptPanel()
+				.getScriptArea()
+				.insert("hbonds off" + ";\n",
+						mainPanel.getScriptPanel().getScriptArea()
+						.getCaretPosition());
 				mainPanel.getScriptPanel().runScript("hbonds off" + ";", false);
 				hbondsOn = false;
 				hbondsButton.setText("HBonds On");
@@ -502,11 +538,11 @@ public class Render implements ActionListener, PropertyChangeListener {
 			if (!ssbondsOn) {
 				// mainPanel.getScriptPanel().getScriptArea().append("cartoons on"+";\n");
 				mainPanel
-						.getScriptPanel()
-						.getScriptArea()
-						.insert("ssbonds on" + ";\n",
-								mainPanel.getScriptPanel().getScriptArea()
-										.getCaretPosition());
+				.getScriptPanel()
+				.getScriptArea()
+				.insert("ssbonds on" + ";\n",
+						mainPanel.getScriptPanel().getScriptArea()
+						.getCaretPosition());
 				mainPanel.getScriptPanel().runScript("ssbonds on" + ";", false);
 				ssbondsOn = true;
 				ssbondsButton.setText("SSBonds Off");
@@ -514,13 +550,13 @@ public class Render implements ActionListener, PropertyChangeListener {
 			} else {
 				// mainPanel.getScriptPanel().getScriptArea().append("cartoons off"+";\n");
 				mainPanel
-						.getScriptPanel()
-						.getScriptArea()
-						.insert("ssbonds off" + ";\n",
-								mainPanel.getScriptPanel().getScriptArea()
-										.getCaretPosition());
+				.getScriptPanel()
+				.getScriptArea()
+				.insert("ssbonds off" + ";\n",
+						mainPanel.getScriptPanel().getScriptArea()
+						.getCaretPosition());
 				mainPanel.getScriptPanel()
-						.runScript("ssbonds off" + ";", false);
+				.runScript("ssbonds off" + ";", false);
 				ssbondsOn = false;
 				ssbondsButton.setText("SSBonds On");
 				mainPanel.getJmolColor().setSSBondsEnabled(false);
@@ -533,22 +569,22 @@ public class Render implements ActionListener, PropertyChangeListener {
 		else if (source == meshRibbonButton) {
 			if (!meshRibbonOn) {
 				mainPanel
-						.getScriptPanel()
-						.getScriptArea()
-						.insert("meshribbon on" + ";\n",
-								mainPanel.getScriptPanel().getScriptArea()
-										.getCaretPosition());
+				.getScriptPanel()
+				.getScriptArea()
+				.insert("meshribbon on" + ";\n",
+						mainPanel.getScriptPanel().getScriptArea()
+						.getCaretPosition());
 				mainPanel.getScriptPanel().runScript("meshribbon on" + ";",
 						false);
 				meshRibbonOn = true;
 				meshRibbonButton.setText("Meshribbon Off");
 			} else {
 				mainPanel
-						.getScriptPanel()
-						.getScriptArea()
-						.insert("meshribbon off" + ";\n",
-								mainPanel.getScriptPanel().getScriptArea()
-										.getCaretPosition());
+				.getScriptPanel()
+				.getScriptArea()
+				.insert("meshribbon off" + ";\n",
+						mainPanel.getScriptPanel().getScriptArea()
+						.getCaretPosition());
 				mainPanel.getScriptPanel().runScript("meshribbon off" + ";",
 						false);
 				meshRibbonOn = false;
@@ -562,22 +598,22 @@ public class Render implements ActionListener, PropertyChangeListener {
 		else if (source == traceButton) {
 			if (!traceOn) {
 				mainPanel
-						.getScriptPanel()
-						.getScriptArea()
-						.insert("trace on" + ";\n",
-								mainPanel.getScriptPanel().getScriptArea()
-										.getCaretPosition());
+				.getScriptPanel()
+				.getScriptArea()
+				.insert("trace on" + ";\n",
+						mainPanel.getScriptPanel().getScriptArea()
+						.getCaretPosition());
 				mainPanel.getScriptPanel().runScript("trace on" + ";",
 						false);
 				traceOn = true;
 				traceButton.setText("Trace Off");
 			} else {
 				mainPanel
-						.getScriptPanel()
-						.getScriptArea()
-						.insert("trace off" + ";\n",
-								mainPanel.getScriptPanel().getScriptArea()
-										.getCaretPosition());
+				.getScriptPanel()
+				.getScriptArea()
+				.insert("trace off" + ";\n",
+						mainPanel.getScriptPanel().getScriptArea()
+						.getCaretPosition());
 				mainPanel.getScriptPanel().runScript("trace off" + ";",
 						false);
 				traceOn = false;
@@ -591,28 +627,44 @@ public class Render implements ActionListener, PropertyChangeListener {
 		else if (source == rocketsButton) {
 			if (!rocketsOn) {
 				mainPanel
-						.getScriptPanel()
-						.getScriptArea()
-						.insert("rockets on" + ";\n",
-								mainPanel.getScriptPanel().getScriptArea()
-										.getCaretPosition());
+				.getScriptPanel()
+				.getScriptArea()
+				.insert("rockets on" + ";\n",
+						mainPanel.getScriptPanel().getScriptArea()
+						.getCaretPosition());
 				mainPanel.getScriptPanel().runScript("rockets on" + ";",
 						false);
 				rocketsOn = true;
 				rocketsButton.setText("Rockets Off");
 			} else {
 				mainPanel
-						.getScriptPanel()
-						.getScriptArea()
-						.insert("rockets off" + ";\n",
-								mainPanel.getScriptPanel().getScriptArea()
-										.getCaretPosition());
+				.getScriptPanel()
+				.getScriptArea()
+				.insert("rockets off" + ";\n",
+						mainPanel.getScriptPanel().getScriptArea()
+						.getCaretPosition());
 				mainPanel.getScriptPanel().runScript("rockets off" + ";",
 						false);
 				rocketsOn = false;
 				rocketsButton.setText("Rockets On");
 			}
 
+		}
+		/*
+		 * Anti-Alias Button
+		 */
+		else if (source== antialiasButton) {
+			if (!antialiasOn) {
+				mainPanel.getScriptPanel().getScriptArea().insert("set antialiasDisplay on" + ";\n", mainPanel.getScriptPanel().getScriptArea().getCaretPosition());
+				mainPanel.getScriptPanel().runScript("set antialiasDisplay on" + ";", false);
+				antialiasOn = true;
+				antialiasButton.setText("Anti-Alias Off");
+			} else {
+				mainPanel.getScriptPanel().getScriptArea().insert("set antialiasDisplay off" + ";\n", mainPanel.getScriptPanel().getScriptArea().getCaretPosition());
+				mainPanel.getScriptPanel().runScript("set antialiasDisplay off" + ";", false);
+				antialiasOn = false;
+				antialiasButton.setText("Anti-Alias On");
+			}
 		}
 	}
 
@@ -636,11 +688,11 @@ public class Render implements ActionListener, PropertyChangeListener {
 			if (send) {
 				// mainPanel.getScriptPanel().getScriptArea().append("wireframe "+num+";\n");
 				mainPanel
-						.getScriptPanel()
-						.getScriptArea()
-						.insert("wireframe " + num + ";\n",
-								mainPanel.getScriptPanel().getScriptArea()
-										.getCaretPosition());
+				.getScriptPanel()
+				.getScriptArea()
+				.insert("wireframe " + num + ";\n",
+						mainPanel.getScriptPanel().getScriptArea()
+						.getCaretPosition());
 				mainPanel.getScriptPanel().runScript("wireframe " + num + ";",
 						false);
 			}
@@ -660,11 +712,11 @@ public class Render implements ActionListener, PropertyChangeListener {
 			if (send) {
 				// mainPanel.getScriptPanel().getScriptArea().append("spacefill "+num+";\n");
 				mainPanel
-						.getScriptPanel()
-						.getScriptArea()
-						.insert("spacefill " + num + ";\n",
-								mainPanel.getScriptPanel().getScriptArea()
-										.getCaretPosition());
+				.getScriptPanel()
+				.getScriptArea()
+				.insert("spacefill " + num + ";\n",
+						mainPanel.getScriptPanel().getScriptArea()
+						.getCaretPosition());
 				mainPanel.getScriptPanel().runScript("spacefill " + num + ";",
 						false);
 			}
@@ -685,11 +737,11 @@ public class Render implements ActionListener, PropertyChangeListener {
 			if (send) {
 				// mainPanel.getScriptPanel().getScriptArea().append("backbone "+num+";\n");
 				mainPanel
-						.getScriptPanel()
-						.getScriptArea()
-						.insert("backbone " + num + ";\n",
-								mainPanel.getScriptPanel().getScriptArea()
-										.getCaretPosition());
+				.getScriptPanel()
+				.getScriptArea()
+				.insert("backbone " + num + ";\n",
+						mainPanel.getScriptPanel().getScriptArea()
+						.getCaretPosition());
 				mainPanel.getScriptPanel().runScript("backbone " + num + ";",
 						false);
 			}
@@ -710,11 +762,11 @@ public class Render implements ActionListener, PropertyChangeListener {
 			if (send) {
 				// mainPanel.getScriptPanel().getScriptArea().append("ribbons "+num+";\n");
 				mainPanel
-						.getScriptPanel()
-						.getScriptArea()
-						.insert("ribbons " + num + ";\n",
-								mainPanel.getScriptPanel().getScriptArea()
-										.getCaretPosition());
+				.getScriptPanel()
+				.getScriptArea()
+				.insert("ribbons " + num + ";\n",
+						mainPanel.getScriptPanel().getScriptArea()
+						.getCaretPosition());
 				mainPanel.getScriptPanel().runScript("ribbons " + num + ";",
 						false);
 			}
@@ -735,11 +787,11 @@ public class Render implements ActionListener, PropertyChangeListener {
 			if (send) {
 				// mainPanel.getScriptPanel().getScriptArea().append("strands "+num+";\n");
 				mainPanel
-						.getScriptPanel()
-						.getScriptArea()
-						.insert("strands " + num + ";\n",
-								mainPanel.getScriptPanel().getScriptArea()
-										.getCaretPosition());
+				.getScriptPanel()
+				.getScriptArea()
+				.insert("strands " + num + ";\n",
+						mainPanel.getScriptPanel().getScriptArea()
+						.getCaretPosition());
 				mainPanel.getScriptPanel().runScript("strands " + num + ";",
 						false);
 			}
@@ -760,11 +812,11 @@ public class Render implements ActionListener, PropertyChangeListener {
 			if (send) {
 				// mainPanel.getScriptPanel().getScriptArea().append("cartoons "+num+";\n");
 				mainPanel
-						.getScriptPanel()
-						.getScriptArea()
-						.insert("cartoons " + num + ";\n",
-								mainPanel.getScriptPanel().getScriptArea()
-										.getCaretPosition());
+				.getScriptPanel()
+				.getScriptArea()
+				.insert("cartoons " + num + ";\n",
+						mainPanel.getScriptPanel().getScriptArea()
+						.getCaretPosition());
 				mainPanel.getScriptPanel().runScript("cartoons " + num + ";",
 						false);
 			}
@@ -785,11 +837,11 @@ public class Render implements ActionListener, PropertyChangeListener {
 			if (send) {
 				// mainPanel.getScriptPanel().getScriptArea().append("cartoons "+num+";\n");
 				mainPanel
-						.getScriptPanel()
-						.getScriptArea()
-						.insert("hbonds " + num + ";\n",
-								mainPanel.getScriptPanel().getScriptArea()
-										.getCaretPosition());
+				.getScriptPanel()
+				.getScriptArea()
+				.insert("hbonds " + num + ";\n",
+						mainPanel.getScriptPanel().getScriptArea()
+						.getCaretPosition());
 				mainPanel.getScriptPanel().runScript("hbonds " + num + ";",
 						false);
 			}
@@ -810,11 +862,11 @@ public class Render implements ActionListener, PropertyChangeListener {
 			if (send) {
 				// mainPanel.getScriptPanel().getScriptArea().append("cartoons "+num+";\n");
 				mainPanel
-						.getScriptPanel()
-						.getScriptArea()
-						.insert("ssbonds " + num + ";\n",
-								mainPanel.getScriptPanel().getScriptArea()
-										.getCaretPosition());
+				.getScriptPanel()
+				.getScriptArea()
+				.insert("ssbonds " + num + ";\n",
+						mainPanel.getScriptPanel().getScriptArea()
+						.getCaretPosition());
 				mainPanel.getScriptPanel().runScript("ssbonds " + num + ";",
 						false);
 			}
@@ -833,11 +885,11 @@ public class Render implements ActionListener, PropertyChangeListener {
 			}
 			if (send) {
 				mainPanel
-						.getScriptPanel()
-						.getScriptArea()
-						.insert("meshribbon " + num + ";\n",
-								mainPanel.getScriptPanel().getScriptArea()
-										.getCaretPosition());
+				.getScriptPanel()
+				.getScriptArea()
+				.insert("meshribbon " + num + ";\n",
+						mainPanel.getScriptPanel().getScriptArea()
+						.getCaretPosition());
 				mainPanel.getScriptPanel().runScript("meshribbon " + num + ";",
 						false);
 			}
@@ -855,11 +907,11 @@ public class Render implements ActionListener, PropertyChangeListener {
 			}
 			if (send) {
 				mainPanel
-						.getScriptPanel()
-						.getScriptArea()
-						.insert("trace " + num + ";\n",
-								mainPanel.getScriptPanel().getScriptArea()
-										.getCaretPosition());
+				.getScriptPanel()
+				.getScriptArea()
+				.insert("trace " + num + ";\n",
+						mainPanel.getScriptPanel().getScriptArea()
+						.getCaretPosition());
 				mainPanel.getScriptPanel().runScript("trace " + num + ";",
 						false);
 			}
@@ -877,16 +929,51 @@ public class Render implements ActionListener, PropertyChangeListener {
 			}
 			if (send) {
 				mainPanel
-						.getScriptPanel()
-						.getScriptArea()
-						.insert("rockets " + num + ";\n",
-								mainPanel.getScriptPanel().getScriptArea()
-										.getCaretPosition());
+				.getScriptPanel()
+				.getScriptArea()
+				.insert("rockets " + num + ";\n",
+						mainPanel.getScriptPanel().getScriptArea()
+						.getCaretPosition());
 				mainPanel.getScriptPanel().runScript("rockets " + num + ";",
+						false);
+			}
+		} else if (source == zoomField) {
+			int num = ((Number) zoomField.getValue()).intValue();
+
+			if (num < 0) {
+				zoomField.setValue(0);
+				num = 0;
+				send = false;
+			}
+			if (send) {
+				mainPanel
+				.getScriptPanel()
+				.getScriptArea()
+				.insert("zoom " + num + ";\n",
+						mainPanel.getScriptPanel().getScriptArea()
+						.getCaretPosition());
+				mainPanel.getScriptPanel().runScript("zoom " + num + ";",
 						false);
 			}
 		}
 
+	}
+	
+	public void stateChanged(ChangeEvent e){
+		JSlider source = (JSlider)e.getSource();
+		// get zoom value
+		int zoom = (int)source.getValue();
+		// get current caret pos
+		int current = mainPanel.getScriptPanel().getScriptArea().getCaretPosition();
+		// run script
+		mainPanel.getScriptPanel().getScriptArea().insert("zoom " + zoom + ";\n", mainPanel.getScriptPanel().getScriptArea().getCaretPosition());
+		mainPanel.getScriptPanel().runScript("zoom " + zoom + ";", false);
+		//set zoomField value to match new value
+		zoomField.setValue(zoom);
+		//select that script, delete it
+		mainPanel.getScriptPanel().getScriptArea().setSelectionStart(current);
+		mainPanel.getScriptPanel().getScriptArea().setSelectionEnd(mainPanel.getScriptPanel().getScriptArea().getCaretPosition());
+		mainPanel.getScriptPanel().getScriptArea().setText(mainPanel.getScriptPanel().getScriptArea().getText().replace(mainPanel.getScriptPanel().getScriptArea().getSelectedText(), ""));
 	}
 
 	public JPanel getRenderPanel() {

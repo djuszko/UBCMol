@@ -7,19 +7,30 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.StringTokenizer;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JFormattedTextField;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JSlider;
+import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.border.Border;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.JOptionPane;
 import javax.swing.JDialog;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
@@ -30,22 +41,20 @@ import java.beans.PropertyChangeListener;
 import org.jmol.adapter.smarter.SmarterJmolAdapter;
 import org.jmol.api.JmolAdapter;
 import org.jmol.api.JmolViewer;
-import org.jmol.api.JmolSelectionListener;
 import org.jmol.api.JmolStatusListener;
-import org.jmol.constant.EnumCallback;
-
-public class MainPanel implements MouseListener {
+public class MainPanel implements MouseListener, PropertyChangeListener, ChangeListener, ActionListener {
 
 	private HTMLBuilder builder;
 	private int id;
 	private JmolPanel jmolPanel;
 	private JmolViewer viewer;
 	private FileDrop fileDrop;
-
+	private JmolStatusListener listener;
+	
 	private File pdbFile;
 	private String pdbString;
 
-	private JPanel panel, jPanel, javascriptPanel, toolPanel, panelColor;
+	private JPanel panel, jPanel, javascriptPanel, toolPanel, panelColor, jMolOptions;
 	private JTextField javascriptField;
 	private ScriptPanel scriptPanel;
 
@@ -66,29 +75,33 @@ public class MainPanel implements MouseListener {
 	private int heteroListNumPointer = 0;
 	private JmolColor jmolColorChooser;
 	private RasmolColors rasmolColors;
-
 	private Picking picking;
-
 	
+	JButton antialiasButton;
+	private boolean antialiasOn;
+	JFormattedTextField zoomField;
+	JSlider zoomSlider;
+	
+	private NumberFormat numberFormat = NumberFormat.getNumberInstance();
+
+
 	public MainPanel(HTMLBuilder builder, int id) {
 		this.builder = builder;
 		this.id = id;
-
 		panel = new JPanel();
 		panel.setLayout(new BorderLayout());
-
-		// west
-		// atomNamePanel = new AtomNamePanel(builder, this, id);
+		
 		picking = new Picking(builder, this, id);
 		scriptPanel = new ScriptPanel(builder, this, id);
 		scriptPanel.setAllEnabled(false);
 
 		jmolPanel = new JmolPanel(picking, scriptPanel);
 		jmolPanel.addMouseListener(this);
-		viewer = jmolPanel.getViewer();
-
-		jmolPanel.setPreferredSize(new Dimension(builder.getFrameWidth() / 3,
-				builder.getFrameWidth() / 3));
+		viewer = jmolPanel.getViewer();	
+		
+		jmolPanel.setMinimumSize(new Dimension(100,100));
+		jmolPanel.setMaximumSize(new Dimension(1000,1000));
+		jmolPanel.setPreferredSize(new Dimension(350, 450));
 
 		fileDrop = new FileDrop(id, jmolPanel, new FileDrop.Listener() {
 
@@ -107,7 +120,6 @@ public class MainPanel implements MouseListener {
 						byte[] in = new byte[size];
 						fis.read(in);
 						pdbString = new String(in);
-						// System.out.println(str);
 						viewer.openStringInline(pdbString);
 
 						loadTools(viewer, pdbString, ext, filename, false);
@@ -157,41 +169,104 @@ public class MainPanel implements MouseListener {
 			} // end filesDropped
 
 		});
-
+		
+		// Created jPanel to contain jMol viewer and give it a border
+		// Add the viewer into jPanel
 		jPanel = new JPanel();
 		jPanel.setLayout(new BoxLayout(jPanel, BoxLayout.Y_AXIS));
 		jPanel.add(jmolPanel);
-
-		// jPanel.add(atomNamePanel.getPanel());
-
 		Border blackline = BorderFactory.createTitledBorder(
 				BorderFactory.createLineBorder(Color.black), "Jmol");
 		jPanel.setBorder(blackline);
-		// west
-		panel.add(jPanel, BorderLayout.WEST);
 
+		// Created a Jmol Options panel to go below jMol viewer and added to jPanel
+		jMolOptions = new JPanel();
+		jPanel.add(jMolOptions);
+		Border jMolOptionsBorder = BorderFactory.createTitledBorder(
+				BorderFactory.createLineBorder(Color.black), "Jmol Options");
+		jMolOptions.setBorder(jMolOptionsBorder);
+		// Setting the height to 0 seems to keep it as small as it can be, which is good; don't want to take space from the viewer
+		jMolOptions.setMinimumSize(new Dimension(280, 80));
+		jMolOptions.setMaximumSize(new Dimension(1000, 120));
+		jMolOptions.setPreferredSize(new Dimension(300, 100));
+		
+			// jMolOptions sub panel
+			JPanel subpanel = new JPanel();
+			subpanel.setLayout(new BoxLayout(subpanel, BoxLayout.Y_AXIS));
+			subpanel.setMinimumSize(new Dimension(270, 100));
+			subpanel.setMaximumSize(new Dimension(350, 150));
+			subpanel.setPreferredSize(new Dimension(270, 80));
+		
+			//Zoom Panel -- this is so the zoom field is next to the slider
+			JPanel zoomSubpanel = new JPanel();
+			zoomSubpanel.setLayout(new BoxLayout(zoomSubpanel, BoxLayout.X_AXIS));
+			
+			//Zoom Label
+			zoomSubpanel.add(new JLabel("Zoom"));
+			
+			// Zoom Slider created and added into Jmol Options
+			zoomSlider = new JSlider(JSlider.HORIZONTAL, 50, 200, 100);
+			zoomSlider.addChangeListener(this);
+			
+			zoomSlider.setMajorTickSpacing(50);
+			zoomSlider.setMinorTickSpacing(5);
+			zoomSlider.setPaintTicks(true);
+			zoomSlider.setPaintLabels(true);
+			zoomSubpanel.add(zoomSlider);
+			
+			// Zoom Field created and added into JMol Options
+			zoomField = new JFormattedTextField(numberFormat);
+			zoomField.setValue(100);
+			zoomField.setColumns(4);
+			zoomField.addPropertyChangeListener("value", this);
+			zoomField.setMaximumSize(new Dimension(100, 20));
+			zoomSubpanel.add(zoomField);
+			
+			subpanel.add(zoomSubpanel);
+			
+			// Anti Alias button created and added into JMol Options
+			antialiasButton = new JButton("Anti-Aliasing On");
+			antialiasButton.addActionListener(this);
+			antialiasButton.setActionCommand("antialiasButton");
+			antialiasOn = false;
+			subpanel.add(antialiasButton);
+			
+			jMolOptions.add(subpanel, BorderLayout.SOUTH);
+
+
+		// Tool Panel created and given a border
+		toolPanel = new JPanel();
+		blackline = BorderFactory.createTitledBorder(
+				BorderFactory.createLineBorder(Color.black), "Tools");
+		toolPanel.setBorder(blackline);
+		toolPanel.setMinimumSize(new Dimension(0,0));
+		toolPanel.setPreferredSize(new Dimension(100,100));
+		
+		//splitPane created to allow for resizing of jMol viewer
+		// Add both jPanel and Tool Panel into the split pane
+		JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, jPanel, toolPanel);
+		Dimension minimumSize = new Dimension(270, 0);
+		jPanel.setMinimumSize(minimumSize);
+		
+		//set scriptPanel sizes
+		scriptPanel.getPanel().setMinimumSize(new Dimension(0,0));
+		scriptPanel.getPanel().setMaximumSize(new Dimension(300,300));
+		scriptPanel.getPanel().setPreferredSize(new Dimension(300,0));
+		
+		// splitPane added into panel in the CENTER
+		// scriptPanel added on the RIGHT side
+		panel.add(splitPane, BorderLayout.CENTER);
 		panel.add(scriptPanel.getPanel(), BorderLayout.EAST);
 
-		// south
+		// JavaScript Panel added into panel on the BOTTOM, given a border
 		javascriptPanel = new JPanel();
 		blackline = BorderFactory.createTitledBorder(
 				BorderFactory.createLineBorder(Color.black), "Java Script");
 		javascriptPanel.setBorder(blackline);
 		javascriptField = new JTextField(builder.getFrameWidth() / 15);
-
 		javascriptField.setEnabled(false);
 		javascriptPanel.add(javascriptField);
-
 		panel.add(javascriptPanel, BorderLayout.SOUTH);
-
-		// tools
-		toolPanel = new JPanel();
-		blackline = BorderFactory.createTitledBorder(
-				BorderFactory.createLineBorder(Color.black), "Tools");
-		toolPanel.setBorder(blackline);
-
-		panel.add(toolPanel, BorderLayout.CENTER);
-
 	}
 
 	public boolean showDialog() {
@@ -199,7 +274,7 @@ public class MainPanel implements MouseListener {
 		final JOptionPane optionPane = new JOptionPane(
 				"Dropping this file will overwrite any changes made!\n"
 						+ "Do you want to continue?",
-				JOptionPane.QUESTION_MESSAGE, JOptionPane.YES_NO_OPTION);
+						JOptionPane.QUESTION_MESSAGE, JOptionPane.YES_NO_OPTION);
 
 		final JDialog dialog = new JDialog(builder, "Warning", true);
 		dialog.setContentPane(optionPane);
@@ -241,6 +316,10 @@ public class MainPanel implements MouseListener {
 
 	public JTextField getJavaScriptField() {
 		return javascriptField;
+	}
+	
+	public JPanel getJmolOptions(){
+		return jMolOptions;
 	}
 
 	public String printAtoms() {
@@ -316,6 +395,10 @@ public class MainPanel implements MouseListener {
 
 	public void reloadPDBString() {
 		viewer.openStringInline(pdbString);
+	}
+	
+	public JmolViewer getViewer(){
+		return viewer;
 	}
 
 	public void loadTools(JmolViewer viewer, String pdb, String ext,
@@ -450,39 +533,32 @@ public class MainPanel implements MouseListener {
 			toolPanel.removeAll();
 
 		}
-		JTabbedPane tabbedPane = new JTabbedPane();// JTabbedPane.TOP);//,
-													// JTabbedPane.WRAP_TAB_LAYOUT);
-
+		JTabbedPane tabbedPane = new JTabbedPane();
 		Atoms atoms = new Atoms(builder, this, id);
-
-		tabbedPane.addTab("Atoms", atoms.getAtomsPanel());
-
+		tabbedPane.addTab("Selection Options", atoms.getAtomsPanel());
 		Residues residues = new Residues(builder, this, id);
-
-		tabbedPane.addTab("Residues", residues.getPanel());
+		tabbedPane.addTab("Residue Selection", residues.getPanel());
 
 		/////////////////////////RENDER/////////////////////////
 
 		Render render = new Render(builder, this, id);
+		tabbedPane.addTab("Visual Options", render.getRenderPanel());
 
-		tabbedPane.addTab("Render", render.getRenderPanel());
-
+		tabbedPane.setMinimumSize(new Dimension(0,0));
+		tabbedPane.setPreferredSize(new Dimension(540, 615));
+		
 		jmolColorChooser = new JmolColor(builder, this, id, "color");
 		panelColor = new JPanel();
-		panelColor.add(jmolColorChooser.getChoicePanel());
+		panelColor.add(jmolColorChooser.getColorPanel());
 		panelColor.add(jmolColorChooser.getChooser());
 
-		// tabbedPane.addTab("Color", jmolColorChooser.getChooser());
-		tabbedPane.addTab("Color", panelColor);
-
 		rasmolColors = new RasmolColors(builder, this, id);
-		tabbedPane.addTab("Rasmol Colors", rasmolColors.getChoicePanel());
-		// tabbedPane.setSize(new Dimension(400, 200));
-		// picking = new Picking(builder, this, id);
-		tabbedPane.addTab("Picking", picking.getPickingPanel());
 
 		toolPanel.add(tabbedPane);
 		builder.setEditEnable(true);
+		getScriptPanel().getScriptArea().insert("select none;\n", getScriptPanel().getScriptArea().getCaretPosition());
+		getScriptPanel().runScript("select none;", false);
+		scriptPanel.getScriptArea().setText("");
 	}
 
 	public JmolColor getJmolColor() {
@@ -511,25 +587,18 @@ public class MainPanel implements MouseListener {
 
 	}
 
-	static class JmolPanel extends JPanel implements JmolStatusListener {
-		// JmolSimpleViewer viewer;
+	static class JmolPanel extends JPanel {
 		JmolViewer viewer;
 		JmolAdapter adapter;
 		String atomName;
 		String atomNumber;
-		// AtomNamePanel atomNamePanel;
 		Picking pickingPanel;
 		ScriptPanel scriptPanel;
 		int errorCount = 0;
-
+		
 		JmolPanel(Picking pickingPanel, ScriptPanel scriptPanel) {
-			// adapter = new SmarterJmolAdapter();
 			adapter = new SmarterJmolAdapter();
-
-			// viewer = JmolSimpleViewer.allocateSimpleViewer(this, adapter);
 			viewer = JmolViewer.allocateViewer(this, adapter);
-			// viewer.addSelectionListener(this);
-			viewer.setJmolStatusListener(this);
 			this.pickingPanel = pickingPanel;
 			this.scriptPanel = scriptPanel;
 		}
@@ -546,7 +615,6 @@ public class MainPanel implements MouseListener {
 			return atomNumber;
 		}
 
-		// public JmolSimpleViewer getViewer() {
 		public JmolViewer getViewer() {
 			return viewer;
 		}
@@ -563,9 +631,8 @@ public class MainPanel implements MouseListener {
 			getSize(currentSize);
 			g.getClipBounds(rectClip);
 			viewer.renderScreenImage(g, currentSize, rectClip);
-
 		}
-
+		
 		public void notifyAtomPicked(int atomIndex, java.lang.String strInfo) {
 
 			System.out.println("Atom picked: " + atomIndex + " " + strInfo);
@@ -581,10 +648,10 @@ public class MainPanel implements MouseListener {
 			String str = strInfo.substring(0, strInfo.indexOf(" #"));
 			// System.out.println(str);
 			pickingPanel.setAtomInfoText(strInfo);
+			scriptPanel.runScript(strInfo, true);
 			// pickingPanel.setSelectedAtom(str);
-
 		}
-
+		
 		public void notifyScriptTermination(String s, int i) {
 			System.out.println("JSL notifyScriptTermination " + s + " " + i);
 		}
@@ -592,7 +659,7 @@ public class MainPanel implements MouseListener {
 		public void notifyNewPickingModeMeasurement(int i, String s) {
 			System.out.println("JSL notifyNewPickingModeMeasurement " + i + " "
 					+ s);
-			pickingPanel.setAtomInfoText(s);
+			//pickingPanel.setAtomInfoText(s);
 		}
 
 		public void notifyResized(int i, int j) {
@@ -635,7 +702,7 @@ public class MainPanel implements MouseListener {
 		public void notifyNewDefaultModeMeasurement(int count, String strInfo) {
 			System.out.println("JSL notifyNewDefaultModeMeasurement " + count
 					+ " " + strInfo);
-			pickingPanel.setAtomInfoText(count + " " + strInfo);
+			//pickingPanel.setAtomInfoText(count + " " + strInfo);
 		}
 
 		public void notifyScriptStart(String statusMessage,
@@ -672,55 +739,74 @@ public class MainPanel implements MouseListener {
 				scriptPanel.setError2(errorCount);
 			}
 		}
-
+		
 		public void sendSyncScript(String s, String t) {
 		}
 
-		public void setCallbackFunction(String s, String t) {
-		}
+	}
+	// ZOOM ACTION HANDLERS
+	@Override
+	public void stateChanged(ChangeEvent e) {
+		JSlider source = (JSlider)e.getSource();
+		// get zoom value
+		int zoom = (int)source.getValue();
+		// get current caret pos
+		int current = this.getScriptPanel().getScriptArea().getCaretPosition();
+		// run script
+		this.getScriptPanel().getScriptArea().insert("zoom " + zoom + ";\n", this.getScriptPanel().getScriptArea().getCaretPosition());
+		this.getScriptPanel().runScript("zoom " + zoom + ";", false);
+		//set zoomField value to match new value
+		zoomField.setValue(zoom);
+		//select that script, delete it
+		this.getScriptPanel().getScriptArea().setSelectionStart(current);
+		this.getScriptPanel().getScriptArea().setSelectionEnd(this.getScriptPanel().getScriptArea().getCaretPosition());
+		this.getScriptPanel().getScriptArea().setText(this.getScriptPanel().getScriptArea().getText().replace(this.getScriptPanel().getScriptArea().getSelectedText(), ""));
+		
+	}
 
-		@Override
-		public void notifyCallback(EnumCallback message, Object[] data) {
-			// TODO Auto-generated method stub
-			
-		}
+	@Override
+	public void propertyChange(PropertyChangeEvent e) {
+		Object source = e.getSource();
+		boolean send = true;
+		
+		if (source == zoomField) {
+			int num = ((Number) zoomField.getValue()).intValue();
 
-		@Override
-		public boolean notifyEnabled(EnumCallback type) {
-			// TODO Auto-generated method stub
-			return false;
+			if (num < 0) {
+				zoomField.setValue(0);
+				num = 0;
+				send = false;
+			}
+			if (send) {
+				this
+				.getScriptPanel()
+				.getScriptArea()
+				.insert("zoom " + num + ";\n",
+						this.getScriptPanel().getScriptArea()
+						.getCaretPosition());
+				this.getScriptPanel().runScript("zoom " + num + ";",
+						false);
+			}
 		}
+	}
 
-		@Override
-		public float[][][] functionXYZ(String functionName, int nx, int ny,
-				int nz) {
-			// TODO Auto-generated method stub
-			return null;
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		Object source = e.getSource();
+		
+		if (source== antialiasButton) {
+			if (!antialiasOn) {
+				this.getScriptPanel().getScriptArea().insert("set antialiasDisplay on" + ";\n", this.getScriptPanel().getScriptArea().getCaretPosition());
+				this.getScriptPanel().runScript("set antialiasDisplay on" + ";", false);
+				antialiasOn = true;
+				antialiasButton.setText("Anti-Alias Off");
+			} else {
+				this.getScriptPanel().getScriptArea().insert("set antialiasDisplay off" + ";\n", this.getScriptPanel().getScriptArea().getCaretPosition());
+				this.getScriptPanel().runScript("set antialiasDisplay off" + ";", false);
+				antialiasOn = false;
+				antialiasButton.setText("Anti-Alias On");
+			}
 		}
-
-		@Override
-		public String createImage(String fileName, String type,
-				Object text_or_bytes, int quality) {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public Map<String, Object> getRegistryInfo() {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public org.jmol.util.Dimension resizeInnerPanel(String data) {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public Map<String, Object> getProperty(String type) {
-			// TODO Auto-generated method stub
-			return null;
-		}
+		
 	}
 }

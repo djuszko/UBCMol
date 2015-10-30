@@ -1,10 +1,13 @@
+import java.awt.BorderLayout;
 import java.awt.Color;
 
+import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JColorChooser;
 import javax.swing.JPanel;
+import javax.swing.border.TitledBorder;
 import javax.swing.colorchooser.AbstractColorChooserPanel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -20,9 +23,9 @@ public class JmolColor extends JComponent implements ChangeListener, ActionListe
 
 	private JColorChooser colorChooser;
 	private String command;
-	private JPanel choicePanel;
+	private JPanel colorPanel, rasmolPanel, outerPanel;
 	private JCheckBox strandsCheckBox, ribbonsCheckBox, cartoonsCheckBox, hbondsCheckBox, ssbondsCheckBox, backgroundCheckBox, labelsCheckBox;
-	JButton cpkButton;
+	private JButton strandsButton, ribbonsButton, cartoonsButton, hbondsButton, ssbondsButton, backgroundButton, cpkButton, aminoButton, shapelyButton, groupButton, structureButton, chainButton, chargeButton;
 
 	public JmolColor(HTMLBuilder builder, MainPanel mainPanel, int id, String command){
 
@@ -30,18 +33,18 @@ public class JmolColor extends JComponent implements ChangeListener, ActionListe
 		this.id = id;
 		this.mainPanel = mainPanel;
 		this.command = command;
-
+		
 		//Create COLOR CHOOSER
 		colorChooser = new JColorChooser();
 		AbstractColorChooserPanel[] panels = colorChooser.getChooserPanels();
 		colorChooser.removeChooserPanel(panels[2]); 
 		colorChooser.removeChooserPanel(panels[1]); 
 		colorChooser.setPreviewPanel(new JPanel());
-		colorChooser.getSelectionModel().addChangeListener(this);
+		colorChooser.getSelectionModel().addChangeListener(this); 
 
-		//Create CHOICE PANEL sub-panel
-		choicePanel = new JPanel();
-		choicePanel.setLayout(new BoxLayout(choicePanel, BoxLayout.Y_AXIS));
+		//Create COLOR PANEL sub-panel
+		colorPanel = new JPanel();
+		colorPanel.setLayout(new BoxLayout(colorPanel, BoxLayout.Y_AXIS));
 
 		//Create RIBBONS check box and add it to CHOICE PANEL
 		ribbonsCheckBox = new JCheckBox("Ribbons");
@@ -50,7 +53,7 @@ public class JmolColor extends JComponent implements ChangeListener, ActionListe
 		ribbonsCheckBox.setActionCommand("ribbons");
 		ribbonsCheckBox.setEnabled(false);
 
-		choicePanel.add(ribbonsCheckBox);
+		colorPanel.add(ribbonsCheckBox);
 
 		//Create STRANDS check box and add it to CHOICE PANEL		
 		strandsCheckBox = new JCheckBox("Strands");
@@ -59,7 +62,7 @@ public class JmolColor extends JComponent implements ChangeListener, ActionListe
 		strandsCheckBox.setActionCommand("strands");
 		strandsCheckBox.setEnabled(false);
 
-		choicePanel.add(strandsCheckBox);
+		colorPanel.add(strandsCheckBox);
 
 		//Create CARTOONS check box and add it to CHOICE PANEL	
 		cartoonsCheckBox = new JCheckBox("Cartoons");
@@ -68,7 +71,7 @@ public class JmolColor extends JComponent implements ChangeListener, ActionListe
 		cartoonsCheckBox.setActionCommand("cartoons");
 		cartoonsCheckBox.setEnabled(false);
 
-		choicePanel.add(cartoonsCheckBox);
+		colorPanel.add(cartoonsCheckBox);
 
 		//Create HBONDS check box and add it to CHOICE PANEL	
 		hbondsCheckBox = new JCheckBox("Hbonds");
@@ -77,7 +80,7 @@ public class JmolColor extends JComponent implements ChangeListener, ActionListe
 		hbondsCheckBox.setActionCommand("hbonds");
 		hbondsCheckBox.setEnabled(false);
 
-		choicePanel.add(hbondsCheckBox);
+		colorPanel.add(hbondsCheckBox);
 
 		//Create SSBONDS check box and add it to CHOICE PANEL	
 		ssbondsCheckBox = new JCheckBox("SSbonds");
@@ -86,7 +89,7 @@ public class JmolColor extends JComponent implements ChangeListener, ActionListe
 		ssbondsCheckBox.setActionCommand("ssbonds");
 		ssbondsCheckBox.setEnabled(false);
 
-		choicePanel.add(ssbondsCheckBox);
+		colorPanel.add(ssbondsCheckBox);
 
 		//Create BACKGROUND check box and add it to CHOICE PANEL	
 		backgroundCheckBox = new JCheckBox("Background");
@@ -94,7 +97,7 @@ public class JmolColor extends JComponent implements ChangeListener, ActionListe
 		backgroundCheckBox.addActionListener(this);		
 		backgroundCheckBox.setActionCommand("background");
 
-		choicePanel.add(backgroundCheckBox);
+		colorPanel.add(backgroundCheckBox);
 
 		//Create LABELS check box and add it to CHOICE PANEL	
 		labelsCheckBox = new JCheckBox("Labels");
@@ -102,7 +105,7 @@ public class JmolColor extends JComponent implements ChangeListener, ActionListe
 		labelsCheckBox.addActionListener(this);
 		labelsCheckBox.setActionCommand("labels");
 
-		choicePanel.add(labelsCheckBox);
+		colorPanel.add(labelsCheckBox);
 	}
 
 	public void stateChanged(ChangeEvent e) {
@@ -125,13 +128,16 @@ public class JmolColor extends JComponent implements ChangeListener, ActionListe
 		return colorChooser;
 	}
 
-	public JPanel getChoicePanel(){
-		return choicePanel;
+	public JPanel getColorPanel(){
+		return colorPanel;
+	}
+	
+	public JPanel getRasmolPanel(){
+		return rasmolPanel;
 	}
 
 	public void actionPerformed(ActionEvent e){
-
-		System.out.println(choicePanel.getComponentCount());
+		System.out.println(colorPanel.getComponentCount());
 		System.out.println(e.getActionCommand());
 		command = "color "+e.getActionCommand();
 

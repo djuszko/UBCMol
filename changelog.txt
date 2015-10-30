@@ -47,9 +47,89 @@ Version 1.3
 
   - Updated COLORS tab
      * Added "Labels" checkbox which allows user to change color of labels
-
-Version 1.4
   - Under PICKING tab
      * Added Select by Atom #
+
+Version 1.4
   - Under RENDER tab
      * Added anti-alias button, zoom slider, zoom text field
+
+Version 1.5
+  - Cleaned up MainPanel.java
+     * Cleaned up formatting
+     * Added comments
+     * Removed unnecessary code
+  - Cleaned up Residues.java
+     * Cleaned up formatting
+     * Added comments
+     * Removed unnecessary code
+
+  - Updated File Menu
+     * Added Open, Load Script, Save Script options
+  - UBCMol Visual Redesign!
+     * Added jMol viewer and Tools panels into a split pane to allow for resizing
+     * Added panel labeled "Jmol Options" that includes Zoom Slider and AA button below jMol viewer
+     * Combined Color, Render, and Rasmol Colors tabs in Tool Panel to create VISUAL OPTIONS tab
+     * Combined Atoms and Picking tabs in Tool Panel to create SELECTION OPTIONS tab
+     * Reorganized RESIDUES tab
+     * Renamed RESIDUES tab to RESIDUE SELECTION
+
+Version 1.6
+  - Added CLEAR button to SCRIPT PANEL
+
+Version 2.0
+  - Various bugfixes and code cleanup
+
+Version 2.1
+  - Added label to Zoom under Jmol Options
+  - JavaScript button syntax modified
+     * from ÅgjmolApplet(300, "load <Put Path Here>/<filename>; [commands]") to script: "load <Put Path Here>/<filename>; [commands]"
+  - Under SELECTION OPTIONS tab
+     * Added VISIBLE button under OTHER SETS section
+     * Fixed OFF under PICKING section: was previously doing nothing
+     * Fixed WITHIN selection: was using incorrect syntax
+     * Increased text area size
+  - Under VISUAL OPTIONS tab
+     * Fixed problem where checkboxes were permanently grayed out
+     * Under RENDER OPTIONS: changed ON/OFF from toggling buttons to two separate ON/OFF buttons
+     * Under RENDER OPTIONS: added a new button to each row labeled "Value:"
+     * Under RENDER OPTIONS: added "Strands Width" and "Strands Number" columns
+
+Version 2.2
+  - Misc. Changes
+     * Changed minimum size of the Tabbed Pane: text area under Selection Options should now always be visible
+     * Loading a new file will now clear the script window
+     * Fixed a bug where all atoms were selected upon loading a file; now nothing is selected upon loading
+     * Fixed a bug where loading a file through menu would create a new tools window below the old one
+  - Under SELECTION OPTIONS tab
+     * Rearranged buttons: put "Group" below "Element," added "Structure" between "Group" and "Chain"
+     * Added text strings to buttons under SELECT column
+     * Changed strings for under PICKING column to match SELECT column
+     * Fixed buttons under SELECT column: all should now be working correctly
+  - Under RESIDUE SELECTION
+     * Fixed a bug where CHAINS column label was showing even if there were no chains in the loaded structure
+  - Under VISUAL OPTIONS tab
+     * Fixed a bug where RENDER OPTIONS and the color picker interacted strangely
+     * Fixed a bug where feature checkboxes and the color picker interacted strangely
+     * Removed RGB and CMYK color chooser tabs
+
+
+Version 2.3
+  - Expanded the window vertically to better fit contained elements
+  - Under VISUAL OPTIONS tab
+     * Changed functionality of hbonds ON button to input command 'hbonds calculate' instead
+     * Added color schemes functionality to checkboxes. Example: checking 'strands' and pressing 'CPK' now issues 'color strands cpk'
+     * Works for ribbons, cartoons, and strands
+     * hbonds only works with cpk
+     * When a checkbox becomes unavailable, it also becomes unchecked
+
+Version 2.4
+  - "Run Script" renamed to "Script Window"
+  - Fixed a bug where "select visible" was often issued even when not pressed
+  - Fixed a bug where many buttons would repeat all previous commands
+  - Under SELECTION OPTIONS tab
+     * Changed Picking: Distance/(Angle)/[Torsion] to input a "measure atom# atom# (atom#) [atom#]" command
+     * Fixed a bug where SELECT column buttons were selecting the wrong atom
+  - Under VISUAL OPTIONS tab
+     * Default values under RENDER OPTIONS changed to more appropriate values
+     * Order of buttons under RENDER OPTIONS rearranged
